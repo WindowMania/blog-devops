@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# make jenkins folders
+sudo mkdir -p /var/jenkins_home
+sudo chown -R 1000:1000 /var/jenkins_home/
+
 # install curl
 sudo apt-get update
 sudo apt-get install -y curl
@@ -13,6 +17,3 @@ sudo usermod -aG docker $USER
 # install docker-compose
 sudo apt-get install -y docker-compose
 
-# make jenkins folders
-mkdir -p ~/jenkins_home
-chown -R 1000:1000 ~/jenkins_home/
