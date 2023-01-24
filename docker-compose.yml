@@ -1,0 +1,20 @@
+version: "3.3"
+services:
+  my-jenkins:
+    image: jenkins/jenkins:2.60.3
+    ports:
+      - "8080:8080"
+      - "50000:50000"
+    restart: always
+    volumes:
+      - ~/jenkins_home:/var/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock # 외부 도커 이용
+  my_registry:
+    image: registry:2
+    restart: always
+    ports:
+      - "5000:5000"
+    volumes:
+      - registry-volume:/var/lib/registry
+volumes:
+  registry-volume:
