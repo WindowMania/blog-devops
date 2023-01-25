@@ -22,6 +22,7 @@ pipeline {
     stages {
         stage('#Git-Clone') {
             steps {
+                sh 'pwd'
                 echo 'Cloning Repository'
                 git url: 'https://github.com/WindowMania/blog-fe.git', branch: 'master', changelog: false
             }
@@ -39,6 +40,7 @@ pipeline {
             steps {
                 dir("${env.WORKSPACE}"){
                     sh "pwd"
+                    sh "ls -all"
                     writeFile file:'/blog-fe/.env.production',text:'''
                         NEXT_PUBLIC_BACK_URL=${NEXT_PUBLIC_BACK_URL}
                         NEXT_PUBLIC_FRONT_URL="${NEXT_PUBLIC_FRONT_URL}
