@@ -8,7 +8,15 @@ pipeline {
         IMAGE_TAG = "${env.BUILD_NUMBER}"
         DOCKER_CREDENTIALS_ID = 'docker-hub'
         FRONT_PRIVATE_IP = '10.10.10.3'
+        BACK_PRIVATE_IP = '10.10.10.4'
         FRONT_UBUNTU_USER_NAME = 'kyb'
+
+        NEXT_PUBLIC_BACK_URL = "https://blog.kyb.pe.kr/api/v1"
+        NEXT_PUBLIC_FRONT_URL = "https://blog.kyb.pe.kr"
+        NEXT_PUBLIC_SSR_BACK_URL="http://${BACK_PRIVATE_IP}:8000/api/v1"
+
+
+        DOCKER_RUN = 'sudo docker run -d --restart always -p 3000:3000 --name ${APP_NAME} ${IMAGE_NAME}'
     }
 
     stages {
@@ -20,6 +28,22 @@ pipeline {
             post {
                 success {
                     echo 'Successfully Cloned Repository'
+                }
+                failure {
+                    error 'This pipeline stops here...'
+                }
+            }
+        }
+
+        stage("#copy-env"){
+            steps {
+                echo 'NEXT_PUBLIC_BACK_URL=${NEXT_PUBLIC_BACK_URL}\n' >> .env.production
+                echo 'NEXT_PUBLIC_FRONT_URL=${NEXT_PUBLIC_FRONT_URL}\n' >> .env.production
+                echo 'NEXT_PUBLIC_SSR_BACK_URL=${NEXT_PUBLIC_SSR_BACK_URL}\n' >> .env.production
+            }
+            post {
+                success {
+                    echo 'Successfully Cloned .env.production'
                 }
                 failure {
                     error 'This pipeline stops here...'
@@ -67,7 +91,7 @@ pipeline {
                 sshagent(credentials: ['ssh']) {
                     sh "ssh -o StrictHostKeyChecking=no ${FRONT_UBUNTU_USER_NAME}@${FRONT_PRIVATE_IP} 'sudo docker pull ${IMAGE_NAME}'"
                     sh "ssh -o StrictHostKeyChecking=no ${FRONT_UBUNTU_USER_NAME}@${FRONT_PRIVATE_IP} 'sudo docker ps -q -a --filter name=${APP_NAME} | grep -q . && docker rm -f \$(docker ps -aq --filter name=${APP_NAME}) || true'"
-                    sh "ssh -o StrictHostKeyChecking=no ${FRONT_UBUNTU_USER_NAME}@${FRONT_PRIVATE_IP} 'sudo docker run -d --restart always --name ${APP_NAME} ${IMAGE_NAME}'"
+                    sh "ssh -o StrictHostKeyChecking=no ${FRONT_UBUNTU_USER_NAME}@${FRONT_PRIVATE_IP} '${DOCKER_RUN}'"
                     sh "ssh -o StrictHostKeyChecking=no ${FRONT_UBUNTU_USER_NAME}@${FRONT_PRIVATE_IP} 'sudo docker images -qf dangling=true | xargs -I{} docker rmi {} || true'"
                     sh "ssh -o StrictHostKeyChecking=no ${FRONT_UBUNTU_USER_NAME}@${FRONT_PRIVATE_IP} 'sudo docker rmi ${IMAGE_NAME}:${IMAGE_TAG} || true'"
                 }
