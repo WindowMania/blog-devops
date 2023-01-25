@@ -15,6 +15,12 @@ pipeline {
         NEXT_PUBLIC_FRONT_URL = "https://blog.kyb.pe.kr"
         NEXT_PUBLIC_SSR_BACK_URL="http://${BACK_PRIVATE_IP}:8000/api/v1"
 
+        NEXT_ENV = '''
+           NEXT_PUBLIC_BACK_URL="${NEXT_PUBLIC_BACK_URL}"
+           NEXT_PUBLIC_FRONT_URL="${NEXT_PUBLIC_FRONT_URL}"
+           NEXT_PUBLIC_SSR_BACK_URL="${NEXT_PUBLIC_SSR_BACK_URL}"
+        '''
+
 
         DOCKER_RUN = 'sudo docker run -d --restart always -p 3000:3000 --name ${APP_NAME} ${IMAGE_NAME}'
     }
@@ -40,11 +46,9 @@ pipeline {
             steps {
                sh "pwd"
                     sh "ls -all"
-                    writeFile file:'.env.production',text:'''
-                        NEXT_PUBLIC_BACK_URL=${NEXT_PUBLIC_BACK_URL}
-                        NEXT_PUBLIC_FRONT_URL="${NEXT_PUBLIC_FRONT_URL}
-                        NEXT_PUBLIC_SSR_BACK_URL="${NEXT_PUBLIC_SSR_BACK_URL}
-                    '''
+                    sh 'echo NEXT_PUBLIC_BACK_URL=${NEXT_PUBLIC_BACK_URL} >> .env.production'
+                    sh 'echo NEXT_PUBLIC_FRONT_URL="${NEXT_PUBLIC_FRONT_URL} >> .env.production'
+                    sh 'echo NEXT_PUBLIC_SSR_BACK_URL="${NEXT_PUBLIC_SSR_BACK_URL} >> .env.production'
                     sh "cat ./.env.production "
            }
             post {
