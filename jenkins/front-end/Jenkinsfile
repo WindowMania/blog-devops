@@ -11,7 +11,6 @@ pipeline {
 
     stages {
         stage('#Git-Clone') {
-            echo '######## GIT CLONE ########'
             steps {
                 echo 'Cloning Repository'
                 git url: 'https://github.com/WindowMania/blog-fe.git', branch: 'master', changelog: false
@@ -27,7 +26,6 @@ pipeline {
         }
 
         stage('#Bulid-Docker') {
-            echo '######## BUILD DOCKER ########'
             steps {
                 echo 'Bulid Docker'
                 script {
