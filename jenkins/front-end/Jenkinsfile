@@ -20,75 +20,75 @@ pipeline {
 
     stages {
 
-//         stage('#Git-Clone') {
-//             steps {
-//
-//                 echo 'Cloning Repository'
-//                 git url: 'https://github.com/WindowMania/blog-fe.git', branch: 'master', changelog: false
-//             }
-//             post {
-//                 success {
-//                     echo 'Successfully Cloned Repository'
-//                 }
-//                 failure {
-//                     error 'This pipeline stops Git-Clone...'
-//                 }
-//             }
-//         }
-//
-//         stage("#copy-env"){
-//             steps {
-//                 sh "ls -all"
-//                 sh "rm -rf .env.production"
-//                 sh 'echo NEXT_PUBLIC_BACK_URL=${NEXT_PUBLIC_BACK_URL} >> .env.production'
-//                 sh 'echo NEXT_PUBLIC_FRONT_URL=${NEXT_PUBLIC_FRONT_URL} >> .env.production'
-//                 sh 'echo NEXT_PUBLIC_SSR_BACK_URL=${NEXT_PUBLIC_SSR_BACK_URL} >> .env.production'
-//
-//                 sh "cat ./.env.production "
-//            }
-//             post {
-//                 success {
-//                     echo 'Successfully Cloned .env.production'
-//                 }
-//                 failure {
-//                     error 'This pipeline stops here...'
-//                 }
-//             }
-//         }
-//
-//         stage('#Bulid-Docker') {
-//             steps {
-//                 echo 'Bulid Docker'
-//                 script {
-//                     dockerImage = docker.build("${IMAGE_NAME}")
-//                 }
-//             }
-//             post {
-//                 failure {
-//                     error 'This pipeline stops here...'
-//                 }
-//             }
-//         }
-//
-//         stage('#Push-Docker') {
-//             steps {
-//                 echo 'Push Docker'
-//                 script {
-//                     docker.withRegistry('', DOCKER_CREDENTIALS_ID) {
-//                         dockerImage.push("${IMAGE_TAG}")
-//                         dockerImage.push("latest")
-//                     }
-//                 }
-//             }
-//             post {
-//                 success {
-//                     sh 'docker rmi $(docker images -q -f dangling=true) || true'
-//                 }
-//                 failure {
-//                     error 'This pipeline stops Push-Docker'
-//                 }
-//             }
-//         }
+        stage('#Git-Clone') {
+            steps {
+
+                echo 'Cloning Repository'
+                git url: 'https://github.com/WindowMania/blog-fe.git', branch: 'master', changelog: false
+            }
+            post {
+                success {
+                    echo 'Successfully Cloned Repository'
+                }
+                failure {
+                    error 'This pipeline stops Git-Clone...'
+                }
+            }
+        }
+
+        stage("#copy-env"){
+            steps {
+                sh "ls -all"
+                sh "rm -rf .env.production"
+                sh 'echo NEXT_PUBLIC_BACK_URL=${NEXT_PUBLIC_BACK_URL} >> .env.production'
+                sh 'echo NEXT_PUBLIC_FRONT_URL=${NEXT_PUBLIC_FRONT_URL} >> .env.production'
+                sh 'echo NEXT_PUBLIC_SSR_BACK_URL=${NEXT_PUBLIC_SSR_BACK_URL} >> .env.production'
+
+                sh "cat ./.env.production "
+           }
+            post {
+                success {
+                    echo 'Successfully Cloned .env.production'
+                }
+                failure {
+                    error 'This pipeline stops here...'
+                }
+            }
+        }
+
+        stage('#Bulid-Docker') {
+            steps {
+                echo 'Bulid Docker'
+                script {
+                    dockerImage = docker.build("${IMAGE_NAME}")
+                }
+            }
+            post {
+                failure {
+                    error 'This pipeline stops here...'
+                }
+            }
+        }
+
+        stage('#Push-Docker') {
+            steps {
+                echo 'Push Docker'
+                script {
+                    docker.withRegistry('', DOCKER_CREDENTIALS_ID) {
+                        dockerImage.push("${IMAGE_TAG}")
+                        dockerImage.push("latest")
+                    }
+                }
+            }
+            post {
+                success {
+                    sh 'docker rmi $(docker images -q -f dangling=true) || true'
+                }
+                failure {
+                    error 'This pipeline stops Push-Docker'
+                }
+            }
+        }
 
         stage('Docker Run') {
             steps {
