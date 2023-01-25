@@ -37,7 +37,7 @@ pipeline {
 
         stage("#copy-env"){
             steps {
-                echo '${env.WORKSPACE}'
+                echo '"${env.WORKSPACE}"'
 
                 writeFile file:'${env.WORKSPACE}/blog-fe/.env.production',text:'''
                     NEXT_PUBLIC_BACK_URL=${NEXT_PUBLIC_BACK_URL}
@@ -55,19 +55,19 @@ pipeline {
             }
         }
 
-//         stage('#Bulid-Docker') {
-//             steps {
-//                 echo 'Bulid Docker'
-//                 script {
-//                     dockerImage = docker.build("${IMAGE_NAME}")
-//                 }
-//             }
-//             post {
-//                 failure {
-//                     error 'This pipeline stops here...'
-//                 }
-//             }
-//         }
+        stage('#Bulid-Docker') {
+            steps {
+                echo 'Bulid Docker'
+                script {
+                    dockerImage = docker.build("${IMAGE_NAME}")
+                }
+            }
+            post {
+                failure {
+                    error 'This pipeline stops here...'
+                }
+            }
+        }
 //
 //         stage('#Push-Docker') {
 //             steps {
