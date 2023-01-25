@@ -24,7 +24,8 @@ pipeline {
         DOCKER_RUN = 'docker run -d --restart always -p 3000:3000 --name ${APP_NAME} ${IMAGE_NAME}'
     }
 
-//     stages {
+    stages {
+
 //         stage('#Git-Clone') {
 //             steps {
 //
