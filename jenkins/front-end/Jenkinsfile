@@ -9,15 +9,13 @@ pipeline {
         DOCKER_CREDENTIALS_ID = 'docker-hub'
         FRONT_PRIVATE_IP = '10.10.10.3'
         BACK_PRIVATE_IP = '10.10.10.4'
-        FRONT_UBUNTU_USER_NAME = 'kyb'
 
         NEXT_PUBLIC_BACK_URL = "https://blog.kyb.pe.kr/api/v1"
         NEXT_PUBLIC_FRONT_URL = "https://blog.kyb.pe.kr"
         NEXT_PUBLIC_SSR_BACK_URL="http://${BACK_PRIVATE_IP}:8000/api/v1"
 
-        SSH_USER = "kyb"
+        SSH_USER = credentials('ssh-user')
         SSH_PASSWORD = credentials('ssh-password')
-        DOCKER_RUN = 'docker run -d --restart always -p 3000:3000 --name ${APP_NAME} ${IMAGE_NAME}'
     }
 
     stages {
@@ -108,7 +106,7 @@ pipeline {
 
                     sshCommand remote: remote, command: "docker pull ${IMAGE_NAME}"
                     sshCommand remote: remote, command: "docker ps -q -a --filter name=${APP_NAME} | grep -q . && docker rm -f \$(docker ps -aq --filter name=${APP_NAME}) || true"
-                    sshCommand remote: remote, command: "${DOCKER_RUN}"
+                    sshCommand remote: remote, command: "docker run -d --restart always -p 3000:3000 --name ${APP_NAME} ${IMAGE_NAME}"
                     sshCommand remote: remote, command: "docker images -qf dangling=true | xargs -I{} docker rmi {} || true"
                     sshCommand remote: remote, command: "docker rmi ${IMAGE_NAME}:${IMAGE_TAG} || true"
                 }
@@ -123,12 +121,3 @@ pipeline {
     }
 
 }
-
-
-//                 sshagent(credentials: ['ssh']) {
-//                     sh "ssh -o StrictHostKeyChecking=no ${FRONT_UBUNTU_USER_NAME}@${FRONT_PRIVATE_IP} 'docker pull ${IMAGE_NAME}'"
-//                     sh "ssh -o StrictHostKeyChecking=no ${FRONT_UBUNTU_USER_NAME}@${FRONT_PRIVATE_IP} 'docker ps -q -a --filter name=${APP_NAME} | grep -q . && docker rm -f \$(docker ps -aq --filter name=${APP_NAME}) || true'"
-//                     sh "ssh -o StrictHostKeyChecking=no ${FRONT_UBUNTU_USER_NAME}@${FRONT_PRIVATE_IP} '${DOCKER_RUN}'"
-//                     sh "ssh -o StrictHostKeyChecking=no ${FRONT_UBUNTU_USER_NAME}@${FRONT_PRIVATE_IP} 'docker images -qf dangling=true | xargs -I{} docker rmi {} || true'"
-//                     sh "ssh -o StrictHostKeyChecking=no ${FRONT_UBUNTU_USER_NAME}@${FRONT_PRIVATE_IP} 'docker rmi ${IMAGE_NAME}:${IMAGE_TAG} || true'"
-//                 }
