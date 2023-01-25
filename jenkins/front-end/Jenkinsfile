@@ -37,14 +37,16 @@ pipeline {
 
         stage("#copy-env"){
             steps {
-                echo '"${env.WORKSPACE}"'
+                dir("${env.WORKSPACE}/blog-fe"){
+                    sh "pwd"
 
-                writeFile file:'${env.WORKSPACE}/blog-fe/.env.production',text:'''
-                    NEXT_PUBLIC_BACK_URL=${NEXT_PUBLIC_BACK_URL}
-                    NEXT_PUBLIC_FRONT_URL="${NEXT_PUBLIC_FRONT_URL}
-                    NEXT_PUBLIC_SSR_BACK_URL="${NEXT_PUBLIC_SSR_BACK_URL}
-                '''
-            }
+                    writeFile file:'/blog-fe/.env.production',text:'''
+                        NEXT_PUBLIC_BACK_URL=${NEXT_PUBLIC_BACK_URL}
+                        NEXT_PUBLIC_FRONT_URL="${NEXT_PUBLIC_FRONT_URL}
+                        NEXT_PUBLIC_SSR_BACK_URL="${NEXT_PUBLIC_SSR_BACK_URL}
+                    '''
+                }
+           }
             post {
                 success {
                     echo 'Successfully Cloned .env.production'
