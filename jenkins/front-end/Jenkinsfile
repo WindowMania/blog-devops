@@ -38,16 +38,14 @@ pipeline {
 
         stage("#copy-env"){
             steps {
-                dir("${env.WORKSPACE}"){
-                    sh "pwd"
+               sh "pwd"
                     sh "ls -all"
-                    writeFile file:'/blog-fe/.env.production',text:'''
+                    writeFile file:'.env.production',text:'''
                         NEXT_PUBLIC_BACK_URL=${NEXT_PUBLIC_BACK_URL}
                         NEXT_PUBLIC_FRONT_URL="${NEXT_PUBLIC_FRONT_URL}
                         NEXT_PUBLIC_SSR_BACK_URL="${NEXT_PUBLIC_SSR_BACK_URL}
                     '''
                     sh "cat ./.env.production "
-                }
            }
             post {
                 success {
