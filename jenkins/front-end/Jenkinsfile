@@ -49,6 +49,7 @@ pipeline {
                 sh 'echo NEXT_PUBLIC_BACK_URL=${NEXT_PUBLIC_BACK_URL} >> .env.production'
                 sh 'echo NEXT_PUBLIC_FRONT_URL=${NEXT_PUBLIC_FRONT_URL} >> .env.production'
                 sh 'echo NEXT_PUBLIC_SSR_BACK_URL=${NEXT_PUBLIC_SSR_BACK_URL} >> .env.production'
+
                 sh "cat ./.env.production "
            }
             post {
@@ -74,27 +75,27 @@ pipeline {
                 }
             }
         }
-//
-//         stage('#Push-Docker') {
-//             steps {
-//                 echo 'Push Docker'
-//                 script {
-//                     docker.withRegistry('', DOCKER_CREDENTIALS_ID) {
-//                         dockerImage.push("${IMAGE_TAG}")
-//                         dockerImage.push("latest")
-//                     }
-//                 }
-//             }
-//             post {
-//                 success {
-//                     sh 'docker rmi $(docker images -q -f dangling=true) || true'
-//                 }
-//                 failure {
-//                     error 'This pipeline stops here...'
-//                 }
-//             }
-//         }
-//
+
+        stage('#Push-Docker') {
+            steps {
+                echo 'Push Docker'
+                script {
+                    docker.withRegistry('', DOCKER_CREDENTIALS_ID) {
+                        dockerImage.push("${IMAGE_TAG}")
+                        dockerImage.push("latest")
+                    }
+                }
+            }
+            post {
+                success {
+                    sh 'docker rmi $(docker images -q -f dangling=true) || true'
+                }
+                failure {
+                    error 'This pipeline stops here...'
+                }
+            }
+        }
+
 //         stage('Docker Run') {
 //             steps {
 //                 echo 'Pull Docker Image & Docker Image Run'
