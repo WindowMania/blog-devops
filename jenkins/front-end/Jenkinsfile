@@ -21,13 +21,6 @@ pipeline {
            NEXT_PUBLIC_SSR_BACK_URL="${NEXT_PUBLIC_SSR_BACK_URL}"
         '''
 
-        def remote = [:]
-        remote.name = 'test'
-        remote.host =  '10.10.10.3'
-        remote.user =  credentials('ssh-user')
-        remote.password =  credentials('ssh-password')
-        remote.allowAnyHosts = true
-
         DOCKER_RUN = 'docker run -d --restart always -p 3000:3000 --name ${APP_NAME} ${IMAGE_NAME}'
     }
 
@@ -104,12 +97,25 @@ pipeline {
 
         stage('Docker Run') {
             steps {
-                echo 'Pull Docker Image & Docker Image Run'
-                sshCommand remote: remote, command: "docker pull ${IMAGE_NAME}"
-                sshCommand remote: remote, command: "docker ps -q -a --filter name=${APP_NAME} | grep -q . && docker rm -f \$(docker ps -aq --filter name=${APP_NAME}) || true"
-                sshCommand remote: remote, command: "${DOCKER_RUN}"
-                sshCommand remote: remote, command: "docker images -qf dangling=true | xargs -I{} docker rmi {} || true"
-                sshCommand remote: remote, command: "docker rmi ${IMAGE_NAME}:${IMAGE_TAG} || true"
+               script {
+
+                    echo 'Pull Docker Image & Docker Image Run'
+
+                    def remote = [:]
+                    remote.name = 'test'
+                    remote.host =  '10.10.10.3'
+                    remote.user =  credentials('ssh-user')
+                    remote.password =  credentials('ssh-password')
+                    remote.allowAnyHosts = true
+
+                    sshCommand remote: remote, command: "docker pull ${IMAGE_NAME}"
+                    sshCommand remote: remote, command: "docker ps -q -a --filter name=${APP_NAME} | grep -q . && docker rm -f \$(docker ps -aq --filter name=${APP_NAME}) || true"
+                    sshCommand remote: remote, command: "${DOCKER_RUN}"
+                    sshCommand remote: remote, command: "docker images -qf dangling=true | xargs -I{} docker rmi {} || true"
+                    sshCommand remote: remote, command: "docker rmi ${IMAGE_NAME}:${IMAGE_TAG} || true"
+
+                }
+
 
 //                 sshagent(credentials: ['ssh']) {
 //                     sh "ssh -o StrictHostKeyChecking=no ${FRONT_UBUNTU_USER_NAME}@${FRONT_PRIVATE_IP} 'docker pull ${IMAGE_NAME}'"
