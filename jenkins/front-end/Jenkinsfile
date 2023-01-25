@@ -15,12 +15,8 @@ pipeline {
         NEXT_PUBLIC_FRONT_URL = "https://blog.kyb.pe.kr"
         NEXT_PUBLIC_SSR_BACK_URL="http://${BACK_PRIVATE_IP}:8000/api/v1"
 
-        NEXT_ENV = '''
-           NEXT_PUBLIC_BACK_URL="${NEXT_PUBLIC_BACK_URL}"
-           NEXT_PUBLIC_FRONT_URL="${NEXT_PUBLIC_FRONT_URL}"
-           NEXT_PUBLIC_SSR_BACK_URL="${NEXT_PUBLIC_SSR_BACK_URL}"
-        '''
-
+        SSH_USER = "kyb"
+        SSH_PASSWORD = credentials('ssh-password')
         DOCKER_RUN = 'docker run -d --restart always -p 3000:3000 --name ${APP_NAME} ${IMAGE_NAME}'
     }
 
@@ -103,8 +99,8 @@ pipeline {
                     def remote = [:]
                     remote.name = 'test'
                     remote.host =  '10.10.10.3'
-                    remote.user =  credentials('ssh-user')
-                    remote.password =  credentials('ssh-password')
+                    remote.user =  SSH_USER
+                    remote.password = SSH_PASSWORD
                     remote.allowAnyHosts = true
 
                     echo "${remote.user}"
