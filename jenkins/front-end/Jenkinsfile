@@ -1,0 +1,29 @@
+pipeline {
+
+    environment {
+        dockerImage = ''
+        APP_NAME = 'kyb.blog'
+        IMAGE_NAME = 'kybdev/blog-fe'
+       // IMAGE_TAG = "${env.BUILD_NUMBER}"
+       // DOCKER_CREDENTIALS_ID = 'docker-hub'
+    }
+
+    stages {
+        stage('Clone') {
+            steps {
+                echo 'Cloning Repository'
+                git url: 'https://github.com/WindowMania/blog-fe.git', branch: 'master', changelog: false
+            }
+            post {
+                success {
+                    echo 'Successfully Cloned Repository'
+                }
+                failure {
+                    error 'This pipeline stops here...'
+                }
+            }
+        }
+
+    }
+
+}
