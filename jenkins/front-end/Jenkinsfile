@@ -37,10 +37,9 @@ pipeline {
 
         stage("#copy-env"){
             steps {
-                def workspace = pwd()
-                echo '${workspace}'
+                echo '${env.WORKSPACE}'
 
-                writeFile file:'${env.WORK}/.env.production',text:'''
+                writeFile file:'${env.WORKSPACE}/blog-fe/.env.production',text:'''
                     NEXT_PUBLIC_BACK_URL=${NEXT_PUBLIC_BACK_URL}
                     NEXT_PUBLIC_FRONT_URL="${NEXT_PUBLIC_FRONT_URL}
                     NEXT_PUBLIC_SSR_BACK_URL="${NEXT_PUBLIC_SSR_BACK_URL}
