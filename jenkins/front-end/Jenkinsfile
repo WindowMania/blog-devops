@@ -24,83 +24,81 @@ pipeline {
         DOCKER_RUN = 'docker run -d --restart always -p 3000:3000 --name ${APP_NAME} ${IMAGE_NAME}'
     }
 
-    stages {
-        stage('#Git-Clone') {
-            steps {
-
-                echo 'Cloning Repository'
-                git url: 'https://github.com/WindowMania/blog-fe.git', branch: 'master', changelog: false
-            }
-            post {
-                success {
-                    echo 'Successfully Cloned Repository'
-                }
-                failure {
-                    error 'This pipeline stops Git-Clone...'
-                }
-            }
-        }
-
-        stage("#copy-env"){
-            steps {
-                sh "ls -all"
-                sh "rm -rf .env.production"
-                sh 'echo NEXT_PUBLIC_BACK_URL=${NEXT_PUBLIC_BACK_URL} >> .env.production'
-                sh 'echo NEXT_PUBLIC_FRONT_URL=${NEXT_PUBLIC_FRONT_URL} >> .env.production'
-                sh 'echo NEXT_PUBLIC_SSR_BACK_URL=${NEXT_PUBLIC_SSR_BACK_URL} >> .env.production'
-
-                sh "cat ./.env.production "
-           }
-            post {
-                success {
-                    echo 'Successfully Cloned .env.production'
-                }
-                failure {
-                    error 'This pipeline stops here...'
-                }
-            }
-        }
-
-        stage('#Bulid-Docker') {
-            steps {
-                echo 'Bulid Docker'
-                script {
-                    dockerImage = docker.build("${IMAGE_NAME}")
-                }
-            }
-            post {
-                failure {
-                    error 'This pipeline stops here...'
-                }
-            }
-        }
-
-        stage('#Push-Docker') {
-            steps {
-                echo 'Push Docker'
-                script {
-                    docker.withRegistry('', DOCKER_CREDENTIALS_ID) {
-                        dockerImage.push("${IMAGE_TAG}")
-                        dockerImage.push("latest")
-                    }
-                }
-            }
-            post {
-                success {
-                    sh 'docker rmi $(docker images -q -f dangling=true) || true'
-                }
-                failure {
-                    error 'This pipeline stops Push-Docker'
-                }
-            }
-        }
+//     stages {
+//         stage('#Git-Clone') {
+//             steps {
+//
+//                 echo 'Cloning Repository'
+//                 git url: 'https://github.com/WindowMania/blog-fe.git', branch: 'master', changelog: false
+//             }
+//             post {
+//                 success {
+//                     echo 'Successfully Cloned Repository'
+//                 }
+//                 failure {
+//                     error 'This pipeline stops Git-Clone...'
+//                 }
+//             }
+//         }
+//
+//         stage("#copy-env"){
+//             steps {
+//                 sh "ls -all"
+//                 sh "rm -rf .env.production"
+//                 sh 'echo NEXT_PUBLIC_BACK_URL=${NEXT_PUBLIC_BACK_URL} >> .env.production'
+//                 sh 'echo NEXT_PUBLIC_FRONT_URL=${NEXT_PUBLIC_FRONT_URL} >> .env.production'
+//                 sh 'echo NEXT_PUBLIC_SSR_BACK_URL=${NEXT_PUBLIC_SSR_BACK_URL} >> .env.production'
+//
+//                 sh "cat ./.env.production "
+//            }
+//             post {
+//                 success {
+//                     echo 'Successfully Cloned .env.production'
+//                 }
+//                 failure {
+//                     error 'This pipeline stops here...'
+//                 }
+//             }
+//         }
+//
+//         stage('#Bulid-Docker') {
+//             steps {
+//                 echo 'Bulid Docker'
+//                 script {
+//                     dockerImage = docker.build("${IMAGE_NAME}")
+//                 }
+//             }
+//             post {
+//                 failure {
+//                     error 'This pipeline stops here...'
+//                 }
+//             }
+//         }
+//
+//         stage('#Push-Docker') {
+//             steps {
+//                 echo 'Push Docker'
+//                 script {
+//                     docker.withRegistry('', DOCKER_CREDENTIALS_ID) {
+//                         dockerImage.push("${IMAGE_TAG}")
+//                         dockerImage.push("latest")
+//                     }
+//                 }
+//             }
+//             post {
+//                 success {
+//                     sh 'docker rmi $(docker images -q -f dangling=true) || true'
+//                 }
+//                 failure {
+//                     error 'This pipeline stops Push-Docker'
+//                 }
+//             }
+//         }
 
         stage('Docker Run') {
             steps {
                script {
-
                     echo 'Pull Docker Image & Docker Image Run'
-
                     def remote = [:]
                     remote.name = 'test'
                     remote.host =  '10.10.10.3'
@@ -108,22 +106,15 @@ pipeline {
                     remote.password =  credentials('ssh-password')
                     remote.allowAnyHosts = true
 
+                    sh 'echo ${remote.user}'
+                    sh 'echo ${remote.password}'
+
                     sshCommand remote: remote, command: "docker pull ${IMAGE_NAME}"
                     sshCommand remote: remote, command: "docker ps -q -a --filter name=${APP_NAME} | grep -q . && docker rm -f \$(docker ps -aq --filter name=${APP_NAME}) || true"
                     sshCommand remote: remote, command: "${DOCKER_RUN}"
                     sshCommand remote: remote, command: "docker images -qf dangling=true | xargs -I{} docker rmi {} || true"
                     sshCommand remote: remote, command: "docker rmi ${IMAGE_NAME}:${IMAGE_TAG} || true"
-
                 }
-
-
-//                 sshagent(credentials: ['ssh']) {
-//                     sh "ssh -o StrictHostKeyChecking=no ${FRONT_UBUNTU_USER_NAME}@${FRONT_PRIVATE_IP} 'docker pull ${IMAGE_NAME}'"
-//                     sh "ssh -o StrictHostKeyChecking=no ${FRONT_UBUNTU_USER_NAME}@${FRONT_PRIVATE_IP} 'docker ps -q -a --filter name=${APP_NAME} | grep -q . && docker rm -f \$(docker ps -aq --filter name=${APP_NAME}) || true'"
-//                     sh "ssh -o StrictHostKeyChecking=no ${FRONT_UBUNTU_USER_NAME}@${FRONT_PRIVATE_IP} '${DOCKER_RUN}'"
-//                     sh "ssh -o StrictHostKeyChecking=no ${FRONT_UBUNTU_USER_NAME}@${FRONT_PRIVATE_IP} 'docker images -qf dangling=true | xargs -I{} docker rmi {} || true'"
-//                     sh "ssh -o StrictHostKeyChecking=no ${FRONT_UBUNTU_USER_NAME}@${FRONT_PRIVATE_IP} 'docker rmi ${IMAGE_NAME}:${IMAGE_TAG} || true'"
-//                 }
             }
             post {
                 failure {
@@ -135,3 +126,12 @@ pipeline {
     }
 
 }
+
+
+//                 sshagent(credentials: ['ssh']) {
+//                     sh "ssh -o StrictHostKeyChecking=no ${FRONT_UBUNTU_USER_NAME}@${FRONT_PRIVATE_IP} 'docker pull ${IMAGE_NAME}'"
+//                     sh "ssh -o StrictHostKeyChecking=no ${FRONT_UBUNTU_USER_NAME}@${FRONT_PRIVATE_IP} 'docker ps -q -a --filter name=${APP_NAME} | grep -q . && docker rm -f \$(docker ps -aq --filter name=${APP_NAME}) || true'"
+//                     sh "ssh -o StrictHostKeyChecking=no ${FRONT_UBUNTU_USER_NAME}@${FRONT_PRIVATE_IP} '${DOCKER_RUN}'"
+//                     sh "ssh -o StrictHostKeyChecking=no ${FRONT_UBUNTU_USER_NAME}@${FRONT_PRIVATE_IP} 'docker images -qf dangling=true | xargs -I{} docker rmi {} || true'"
+//                     sh "ssh -o StrictHostKeyChecking=no ${FRONT_UBUNTU_USER_NAME}@${FRONT_PRIVATE_IP} 'docker rmi ${IMAGE_NAME}:${IMAGE_TAG} || true'"
+//                 }
