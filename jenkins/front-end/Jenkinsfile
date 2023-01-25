@@ -21,8 +21,7 @@ pipeline {
            NEXT_PUBLIC_SSR_BACK_URL="${NEXT_PUBLIC_SSR_BACK_URL}"
         '''
 
-
-        DOCKER_RUN = 'sudo docker run -d --restart always -p 3000:3000 --name ${APP_NAME} ${IMAGE_NAME}'
+        DOCKER_RUN = 'docker run -d --restart always -p 3000:3000 --name ${APP_NAME} ${IMAGE_NAME}'
     }
 
     stages {
@@ -96,23 +95,23 @@ pipeline {
             }
         }
 
-//         stage('Docker Run') {
-//             steps {
-//                 echo 'Pull Docker Image & Docker Image Run'
-//                 sshagent(credentials: ['ssh']) {
-//                     sh "ssh -o StrictHostKeyChecking=no ${FRONT_UBUNTU_USER_NAME}@${FRONT_PRIVATE_IP} 'sudo docker pull ${IMAGE_NAME}'"
-//                     sh "ssh -o StrictHostKeyChecking=no ${FRONT_UBUNTU_USER_NAME}@${FRONT_PRIVATE_IP} 'sudo docker ps -q -a --filter name=${APP_NAME} | grep -q . && docker rm -f \$(docker ps -aq --filter name=${APP_NAME}) || true'"
-//                     sh "ssh -o StrictHostKeyChecking=no ${FRONT_UBUNTU_USER_NAME}@${FRONT_PRIVATE_IP} '${DOCKER_RUN}'"
-//                     sh "ssh -o StrictHostKeyChecking=no ${FRONT_UBUNTU_USER_NAME}@${FRONT_PRIVATE_IP} 'sudo docker images -qf dangling=true | xargs -I{} docker rmi {} || true'"
-//                     sh "ssh -o StrictHostKeyChecking=no ${FRONT_UBUNTU_USER_NAME}@${FRONT_PRIVATE_IP} 'sudo docker rmi ${IMAGE_NAME}:${IMAGE_TAG} || true'"
-//                 }
-//             }
-//             post {
-//                 failure {
-//                     error 'This pipeline stops here...'
-//                 }
-//             }
-//         }
+        stage('Docker Run') {
+            steps {
+                echo 'Pull Docker Image & Docker Image Run'
+                sshagent(credentials: ['ssh']) {
+                    sh "ssh -o StrictHostKeyChecking=no ${FRONT_UBUNTU_USER_NAME}@${FRONT_PRIVATE_IP} 'docker pull ${IMAGE_NAME}'"
+                    sh "ssh -o StrictHostKeyChecking=no ${FRONT_UBUNTU_USER_NAME}@${FRONT_PRIVATE_IP} 'docker ps -q -a --filter name=${APP_NAME} | grep -q . && docker rm -f \$(docker ps -aq --filter name=${APP_NAME}) || true'"
+                    sh "ssh -o StrictHostKeyChecking=no ${FRONT_UBUNTU_USER_NAME}@${FRONT_PRIVATE_IP} '${DOCKER_RUN}'"
+                    sh "ssh -o StrictHostKeyChecking=no ${FRONT_UBUNTU_USER_NAME}@${FRONT_PRIVATE_IP} 'docker images -qf dangling=true | xargs -I{} docker rmi {} || true'"
+                    sh "ssh -o StrictHostKeyChecking=no ${FRONT_UBUNTU_USER_NAME}@${FRONT_PRIVATE_IP} 'docker rmi ${IMAGE_NAME}:${IMAGE_TAG} || true'"
+                }
+            }
+            post {
+                failure {
+                    error 'This pipeline stops here...'
+                }
+            }
+        }
 
     }
 
