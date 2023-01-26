@@ -35,6 +35,8 @@ pipeline {
                     sh "rm -rf .env"
                     sh 'echo APP_MODE=prod >> .env'
                     sh 'cp env_prod ./.env.prod '
+                    sh "ls -all"
+                    sh "cat .env.prod"
                 }
            }
             post {
