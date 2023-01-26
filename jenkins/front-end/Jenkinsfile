@@ -3,10 +3,10 @@ pipeline {
 
     environment {
         dockerImage = ''
-        APP_NAME = 'kyb-blog'
-        IMAGE_NAME = 'kybdev/blog-fe'
+        APP_NAME = 'kyb-blog-fe'
+        IMAGE_NAME = 'blog-fe'
         IMAGE_TAG = "${env.BUILD_NUMBER}"
-        DOCKER_CREDENTIALS_ID = 'docker-hub'
+
         BACK_PRIVATE_IP = '10.10.10.4'
 
         DOCKER_HUB_URL = 'http://10.10.10.69:5000'
