@@ -77,13 +77,6 @@ pipeline {
                 sh 'docker tag ${IMAGE_NAME} ${DOCKER_HUB_URL}/${IMAGE_NAME}:${IMAGE_TAG}'
                 sh 'docker push ${DOCKER_HUB_URL}/${IMAGE_NAME}:${IMAGE_TAG}'
                 // https://ikcoo.tistory.com/59
-
-//                 script {
-//                     docker.withRegistry(DOCKER_HUB_URL) {
-//                         dockerImage.push("${IMAGE_TAG}")
-//                         dockerImage.push("latest")
-//                     }
-//                 }
             }
             post {
                 success {

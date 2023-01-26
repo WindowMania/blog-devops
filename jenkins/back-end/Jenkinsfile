@@ -1,0 +1,108 @@
+pipeline {
+    agent any
+
+    environment {
+        APP_NAME = 'kyb-blog-be'
+        IMAGE_NAME = 'blog-be'
+        IMAGE_TAG = "${env.BUILD_NUMBER}"
+
+        DOCKER_HUB_URL = '10.10.10.69:5000'
+        SSH_USER = credentials('ssh-user')
+        SSH_PASSWORD = credentials('ssh-password')
+    }
+
+    stages {
+
+        stage('#Git-Clone') {
+            steps {
+                echo 'Cloning Repository'
+                git url: 'https://github.com/WindowMania/blog-be.git', branch: 'master', changelog: false
+            }
+            post {
+                success {
+                    echo 'Successfully Cloned Repository'
+                }
+                failure {
+                    error 'This pipeline stops Git-Clone...'
+                }
+            }
+        }
+
+        stage("#copy-env"){
+            steps {
+                withCredentials(file(credentialsId: 'blog-be-prod-env', variable: 'env_prod')){
+                    sh "ls -all"
+                    sh "rm -rf .env"
+                    sh 'echo APP_MODE=prod >> .env'
+                    sh 'cp env_prod ./.env.prod '
+                }
+           }
+            post {
+                success {
+                    echo 'Successfully Cloned .env.production'
+                }
+                failure {
+                    error 'This pipeline stops here...'
+                }
+            }
+        }
+
+//         stage('#Bulid-Docker') {
+//             steps {
+//                 echo 'Bulid Docker'
+//                 script {
+//                     dockerImage = docker.build("${IMAGE_NAME}")
+//                 }
+//             }
+//             post {
+//                 failure {
+//                     error 'This pipeline stops here...'
+//                 }
+//             }
+//         }
+
+//         stage('#Push-Docker') {
+//             steps {
+//                 echo 'Push Docker'
+//                 sh 'docker tag ${IMAGE_NAME} ${DOCKER_HUB_URL}/${IMAGE_NAME}:${IMAGE_TAG}'
+//                 sh 'docker push ${DOCKER_HUB_URL}/${IMAGE_NAME}:${IMAGE_TAG}'
+//                 // https://ikcoo.tistory.com/59
+//             }
+//             post {
+//                 success {
+//                     sh 'docker rmi $(docker images -q -f dangling=true) || true'
+//                 }
+//                 failure {
+//                     error 'This pipeline stops Push-Docker'
+//                 }
+//             }
+//         }
+
+//         stage('Docker Run') {
+//             steps {
+//                script {
+//                     echo 'Pull Docker Image & Docker Image Run'
+//                     def remote = [:]
+//                     remote.name = 'test'
+//                     remote.host =  '10.10.10.3'
+//                     remote.user =  SSH_USER
+//                     remote.password = SSH_PASSWORD
+//                     remote.allowAnyHosts = true
+//
+//                     sshCommand remote: remote, command: "docker pull ${DOCKER_HUB_URL}/${IMAGE_NAME}:${IMAGE_TAG}"
+//                     sshCommand remote: remote, command: "docker ps -q -a --filter name=${APP_NAME} | grep -q . && docker rm -f \$(docker ps -aq --filter name=${APP_NAME}) || true"
+//                     sshCommand remote: remote, command: "docker run -d --restart always -p 3000:3000 --name ${APP_NAME} ${DOCKER_HUB_URL}/${IMAGE_NAME}:${IMAGE_TAG}"
+//                     sshCommand remote: remote, command: "docker images -qf dangling=true | xargs -I{} docker rmi {} || true"
+//                     sshCommand remote: remote, command: "docker rmi ${DOCKER_HUB_URL}/${IMAGE_NAME}:${IMAGE_TAG} || true"
+//                 }
+//             }
+//             post {
+//                 failure {
+//                     error 'This pipeline stops Docker Run '
+//                 }
+//             }
+//         }
+
+    }
+
+}
