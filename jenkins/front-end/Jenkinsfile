@@ -74,12 +74,14 @@ pipeline {
         stage('#Push-Docker') {
             steps {
                 echo 'Push Docker'
-                script {
-                    docker.withRegistry(DOCKER_HUB_URL) {
-                        dockerImage.push("${IMAGE_TAG}")
-                        dockerImage.push("latest")
-                    }
-                }
+                sh 'docker push ${DOCKER_HUB_URL}/${IMAGE_NAME}:${IMAGE_TAG}'
+
+//                 script {
+//                     docker.withRegistry(DOCKER_HUB_URL) {
+//                         dockerImage.push("${IMAGE_TAG}")
+//                         dockerImage.push("latest")
+//                     }
+//                 }
             }
             post {
                 success {
@@ -102,7 +104,7 @@ pipeline {
                     remote.password = SSH_PASSWORD
                     remote.allowAnyHosts = true
 
-                    sshCommand remote: remote, command: "docker pull ${IMAGE_NAME}"
+                    sshCommand remote: remote, command: "docker pull ${DOCKER_HUB_URL}/${IMAGE_NAME}:${IMAGE_TAG}"
                     sshCommand remote: remote, command: "docker ps -q -a --filter name=${APP_NAME} | grep -q . && docker rm -f \$(docker ps -aq --filter name=${APP_NAME}) || true"
                     sshCommand remote: remote, command: "docker run -d --restart always -p 3000:3000 --name ${APP_NAME} ${IMAGE_NAME}"
                     sshCommand remote: remote, command: "docker images -qf dangling=true | xargs -I{} docker rmi {} || true"
