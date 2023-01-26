@@ -30,12 +30,12 @@ pipeline {
 
         stage("#copy-env"){
             steps {
-                withCredentials(file(credentialsId: 'blog-be-prod-env', variable: 'env_prod')){
+                withCredentials([file(credentialsId: 'blog-be-prod-env', variable: 'env_prod')]){
                     sh "ls -all"
                     sh "rm -rf .env"
                     sh "rm -rf .env.prod"
                     sh 'echo APP_MODE=prod >> .env'
-                    sh 'cp env_prod ./.env.prod '
+                    sh 'cat &env_prod >> .env.prod'
                     sh "ls -all"
                     sh "cat .env.prod"
                 }
