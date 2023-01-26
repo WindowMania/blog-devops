@@ -9,7 +9,7 @@ pipeline {
 
         BACK_PRIVATE_IP = '10.10.10.4'
 
-        DOCKER_HUB_URL = 'http://10.10.10.69:5000'
+        DOCKER_HUB_URL = '10.10.10.69:5000'
 
         NEXT_PUBLIC_BACK_URL = "https://blog.kyb.pe.kr/api/v1"
         NEXT_PUBLIC_FRONT_URL = "https://blog.kyb.pe.kr"
