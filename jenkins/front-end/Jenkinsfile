@@ -7,8 +7,9 @@ pipeline {
         IMAGE_NAME = 'kybdev/blog-fe'
         IMAGE_TAG = "${env.BUILD_NUMBER}"
         DOCKER_CREDENTIALS_ID = 'docker-hub'
-        FRONT_PRIVATE_IP = '10.10.10.3'
         BACK_PRIVATE_IP = '10.10.10.4'
+
+        DOCKER_HUB_URL = 'http://10.10.10.69:5000'
 
         NEXT_PUBLIC_BACK_URL = "https://blog.kyb.pe.kr/api/v1"
         NEXT_PUBLIC_FRONT_URL = "https://blog.kyb.pe.kr"
@@ -74,7 +75,7 @@ pipeline {
             steps {
                 echo 'Push Docker'
                 script {
-                    docker.withRegistry('', DOCKER_CREDENTIALS_ID) {
+                    docker.withRegistry(DOCKER_HUB_URL) {
                         dockerImage.push("${IMAGE_TAG}")
                         dockerImage.push("latest")
                     }
