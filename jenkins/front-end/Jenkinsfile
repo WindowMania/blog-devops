@@ -74,6 +74,7 @@ pipeline {
         stage('#Push-Docker') {
             steps {
                 echo 'Push Docker'
+                sh 'docker tag ${IMAGE_NAME} ${DOCKER_HUB_URL}/${IMAGE_NAME}:${IMAGE_TAG}'
                 sh 'docker push ${DOCKER_HUB_URL}/${IMAGE_NAME}:${IMAGE_TAG}'
 
 //                 script {
