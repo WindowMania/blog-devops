@@ -5,7 +5,7 @@ pipeline {
         APP_NAME = 'kyb-blog-be-v2'
         IMAGE_NAME = 'blog-be-v2'
         IMAGE_TAG = "${env.BUILD_NUMBER}"
-        DOCKER_HUB_URL = '10.10.10.69:5000'
+        DOCKER_HUB_URL = '10.10.10.7:5000'
         SSH_USER = credentials('ssh-user')
         SSH_PASSWORD = credentials('ssh-password')
     }
