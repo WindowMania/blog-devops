@@ -7,13 +7,13 @@ pipeline {
         IMAGE_NAME = 'blog-fe'
         IMAGE_TAG = "${env.BUILD_NUMBER}"
 
-        BACK_PRIVATE_IP = '10.10.10.4'
+        BACK_PRIVATE_IP = '10.10.10.6'
 
         DOCKER_HUB_URL = '10.10.10.7:5000'
 
-        NEXT_PUBLIC_BACK_URL = "https://blog.kyb.pe.kr/api/v1"
+        NEXT_PUBLIC_BACK_URL = "https://blog.kyb.pe.kr/api/v2"
         NEXT_PUBLIC_FRONT_URL = "https://blog.kyb.pe.kr"
-        NEXT_PUBLIC_SSR_BACK_URL="http://${BACK_PRIVATE_IP}:8000/api/v1"
+        NEXT_PUBLIC_SSR_BACK_URL="http://${BACK_PRIVATE_IP}:8000/api/v2"
 
         SSH_USER = credentials('ssh-user')
         SSH_PASSWORD = credentials('ssh-password')
